@@ -40,12 +40,53 @@ def find_roots() -> list[float]:
     '''
 
 def get_coefs() -> str:
-    '''
-    Documentation and docstring.
-    Шукає коефіцієнти. Тут система рівнянь.
-    МАРТА
-    '''
-    pass
+    """
+    Fucntion returns roots of equation system using Cramer`s method.
+    >>> get_coefs((\
+        "2*A1 + 5*A2 = 19", \
+        "1*A1 + -2*A2 = -4"))
+    [2.0, 3.0]
+    >>> get_coefs((\
+        "2*A1 + 1*A2 + 3*A3 = 10", \
+        "1*A1 + 1*A2 + 1*A3 = 6", \
+        "1*A1 + 3*A2 + 2*A3 = 13"))
+    [2.0, 3.0, 1.0]
+    >>> get_coefs((\
+        "1*A1 + 2*A2 + 3*A3 + -2*A4 = 6", \
+        "3*A1 + 2*A2 + -1*A3 + 2*A4 = 4", \
+        "2*A1 + -1*A2 + -2*A3 + -3*A4 = 2", \
+        "2*A1 + -3*A2 + 2*A3 + 1*A4 = 8"))
+    [2.11, -0.33, 1.44, -0.11]
+    """
+    import numpy as np
+    import copy
+
+    # definition coeff
+    coeff = []
+    for i in range(len(input)):
+        row  = []
+        a = input[i].split(" + ")
+        for j in range(len(a)):
+            row.append(int(a[j].split("*")[0]))
+        coeff.append(row)
+
+    # definition res   
+    res = [int(input[i].split(" = ")[1]) for i in range(len(input))]
+
+    def rmatrix(n):
+        pro = copy.deepcopy(coeff)
+        for e in range(len(coeff)):
+            if n != 0:
+                pro[e][n-1] = res[e]
+        return pro
+
+    # matrix determinant
+    det = [np.linalg.det(np.array(rmatrix(n))) for n in range(len(input)+1)]
+
+    #roots
+    final = [round(det[u]/det[0],2) for u in range(1, len(input)+1)]
+
+    return final
 
 def final_solution_one_el() -> float:
     '''
