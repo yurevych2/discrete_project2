@@ -1,34 +1,45 @@
 '''
-Description
+Modul that solve reccurent equations in two ways: slow and speed.
 '''
-def general_solution(equation) -> tuple:
-    """
-    Returns an general solution of recurrent equations and list of coefficients.
-    >>> general_solution("-6*a(n-3) + 0.25*a(n-2) + 4*a(n-1)")
-    ('A1*r^(n-1) + A2*r^(n-2) + A3*r^(n-3)', [-6.0, 0.25, 4.0])
-    >>> general_solution("1*a(n-4) + 8*a(n-3) + 3*a(n-2) - 10*a(n-1)")
-    ('A1*r^(n-1) + A2*r^(n-2) + A3*r^(n-3) + A4*r^(n-4)', [1.0, 8.0, 3.0, 10.0])
-    >>> general_solution("-6*a(n-3) + 2*a(n-2) + 4*a(n-1)")
-    ('A1*r^(n-1) + A2*r^(n-2) + A3*r^(n-3)', [-6.0, 2.0, 4.0])
-    >>> general_solution(3)
-    'Incorrect input'
-    """
+
+from copy import deepcopy
+from numpy import array, matmul
+from numpy.linalg import matrix_power, det
+
+def modify_equation(equation):
+    '''
+    Raise TypeError if the data type is not str. Replace ' - ' with ' + -'.
+
+    >>> modify_equation('4*a(n-1) + 2*a(n-2) - 6*a(n-3)')
+    '4*a(n-1) + 2*a(n-2) + -6*a(n-3)'
+    '''
     # verification of input data
     if isinstance(equation, str) == False:
-        return "Incorrect input"
+        raise TypeError('Equation must me a string.')
+
+    # equation modification
+    if " - " in equation:
+        equation = equation.replace(" - ", " + -")
+    
+    return equation
+
+def general_solution(equation) -> tuple:
+    """
+    Returns a general solution of recurrent equations and list of coefficients.
+
+    >>> general_solution("4*a(n-1) + 0.25*a(n-2) + -6*a(n-3)")
+    ('A1*r^(n-1) + A2*r^(n-2) + A3*r^(n-3)', [4.0, 0.25, -6.0])
+    """
+    # creating a list of coefficients and transforming the equation
+    coeff = []
 
     # equation modification
     equation = equation.replace("a", "r^")
-    if " - " in equation:
-        equation = equation.replace(" - ", " + ")
-    
-    # creating a list of coefficients and transforming the equation
-    coeff = []
     a = equation.split(" + ")
     for i in range(len(a)):
         coeff.append(float(a[i].split("*")[0]))
-        a[i] = f"A{len(a)-i}*" + a[i].split("*")[-1]
-    equation = (" + ").join(a[::-1])
+        a[i] = f"A{i+1}*" + a[i].split("*")[-1]
+    equation = (" + ").join(a)
 
     return equation, coeff
 
@@ -39,77 +50,59 @@ def find_roots() -> list[float]:
     ТАРАС
     '''
 
-def get_coefs() -> str:
+def get_coefs(equation) -> str:
     """
     Fucntion returns roots of equation system using Cramer`s method.
-    >>> get_coefs((\
-        "2*A1 + 5*A2 = 19", \
-        "1*A1 + -2*A2 = -4"))
+    >>> get_coefs(( "2*A1 + 5*A2 = 19", \
+                    "1*A1 + -2*A2 = -4"))
     [2.0, 3.0]
-    >>> get_coefs((\
-        "2*A1 + 1*A2 + 3*A3 = 10", \
-        "1*A1 + 1*A2 + 1*A3 = 6", \
-        "1*A1 + 3*A2 + 2*A3 = 13"))
+    >>> get_coefs(( "2*A1 + 1*A2 + 3*A3 = 10", \
+                    "1*A1 + 1*A2 + 1*A3 = 6", \
+                    "1*A1 + 3*A2 + 2*A3 = 13"))
     [2.0, 3.0, 1.0]
-    >>> get_coefs((\
-        "1*A1 + 2*A2 + 3*A3 + -2*A4 = 6", \
-        "3*A1 + 2*A2 + -1*A3 + 2*A4 = 4", \
-        "2*A1 + -1*A2 + -2*A3 + -3*A4 = 2", \
-        "2*A1 + -3*A2 + 2*A3 + 1*A4 = 8"))
-    [2.11, -0.33, 1.44, -0.11]
     """
-    import numpy as np
-    import copy
-
     # definition coeff
     coeff = []
-    for i in range(len(input)):
+    for i in range(len(equation)):
         row  = []
-        a = input[i].split(" + ")
+        a = equation[i].split(" + ")
         for j in range(len(a)):
             row.append(int(a[j].split("*")[0]))
         coeff.append(row)
 
     # definition res   
-    res = [int(input[i].split(" = ")[1]) for i in range(len(input))]
+    res = [int(equation[i].split(" = ")[1]) for i in range(len(equation))]
 
     def rmatrix(n):
-        pro = copy.deepcopy(coeff)
+        pro = deepcopy(coeff)
         for e in range(len(coeff)):
             if n != 0:
                 pro[e][n-1] = res[e]
         return pro
 
     # matrix determinant
-    det = [np.linalg.det(np.array(rmatrix(n))) for n in range(len(input)+1)]
+    det_ = [det(array(rmatrix(n))) for n in range(len(equation)+1)]
 
     #roots
-    final = [round(det[u]/det[0],2) for u in range(1, len(input)+1)]
+    final = [round(det_[u]/det_[0],2) for u in range(1, len(equation)+1)]
 
     return final
 
-def final_solution_one_el() -> float:
-    '''
-    Documentation and docstring.
-    Підставляє r, А в загальне рівняння А_н. Повертає фінальний розв'язок А_н.
-    МАРТА
-    >>> final_solution_one_el()
-    '''
-    equation = general_solution()
-    Rs = find_roots()
-    As = get_coefs()
-    #r = [829482394823,2,9839283,4]
-    #As = [56,2,3,4]
-    #equation = 'A1*r1^(n-1) + A2*r2^(n-2) + A3*r3^(n-3) + A4*r4^(n-4)'
+def final_solution_one_el(equation, Rs, As) -> float:
+    """
+    Substitutes r, A and returns the final solution of the nth term.
 
+    >>> final_solution_one_el('A1*r^(n-1) + A2*r^(n-2) + A3*r^(n-3)', [1,2,3], [1,2,3])
+    '1*1^(n-1) + 2*2^(n-2) + 3*3^(n-3)'
+    """
     if len(Rs) != len(equation.split(' + ')) or len(As)!= len(equation.split(' + ')):
         return 'Kinda cringe bro'
 
     for el in range(len(As)):
-        equation = equation.replace(f'A{el+1}',str(As[el]))
+        equation = equation.replace(f'A{el+1}', str(As[el]))
 
     for xd in range(len(Rs)):
-        equation = equation.replace(f'r{xd+1}',str(Rs[xd]))
+        equation = equation.replace(f'r{xd+1}', str(Rs[xd]))
 
     return equation
 
@@ -121,18 +114,47 @@ def final_solution_plural_el(nums: list) -> list[float]:
     з переліка, який отримує функція.
     ВІКА
     '''
-    solutions_lst = []
-    for element in nums:
-        solution = final_solution_one_el(element)
-        solutions_lst.append(solution)
-    return solutions_lst
-
-def exact_element() -> float:
-    '''
-    Documentation and docstring.
-    НАТАЛІ
-    '''
     pass
+
+def get_transitive_matrix(equation: str):
+    '''
+    Return transitive matrix to find n-th element of the secuence.
+
+    >>> get_transitive_matrix('3*a(n-1) + 10*a(n-2)')
+    [[0, 10.0], [1, 3.0]]
+    '''
+    matrix_size = equation.count(' + ') + 1
+    coefs = general_solution(equation)[-1]
+    matrix = [[coef] for coef in coefs[::-1]]
+    for row in range(matrix_size):
+        for _ in range(matrix_size-1):
+            matrix[row].insert(0, 0)
+
+    for row in range(matrix_size+1):
+        for column in range(matrix_size+1):
+            if row and row == column - 1:
+                matrix[row][column-2] = 1
+
+    return matrix
+
+def get_nth_el(equation: str, first_els: list, n: int):
+    '''
+    Find n-th element of reccurence relationship.
+    :param first_els list: values of basic elements. [a(n-1)] for a(n) = 2*a(n-1).
+    :param n int: number of element to find. Indexes from 0.
+
+    >>> get_nth_el('3*a(n-1) + 10*a(n-2)', [1, 43], 4)
+    847.0
+    >>> get_nth_el('3*a(n-1) + 10*a(n-2)', [1, 43], 1)
+    43
+    '''
+    transist_matrix = get_transitive_matrix(equation)
+    if n < len(first_els):
+        return first_els[n]
+    else:
+        matrix = matrix_power(array(transist_matrix), n-2)
+        n_th = list(matmul(array(first_els), matrix))[-1]
+        return n_th
 
 def speed_analisys():
     '''
