@@ -89,7 +89,6 @@ def get_coefs() -> str:
     return final
 
 def final_solution_one_el() -> float:
-    def final_solution_one_el() -> float:
     '''
     Documentation and docstring.
     Підставляє r, А в загальне рівняння А_н. Повертає фінальний розв'язок А_н.
