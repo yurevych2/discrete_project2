@@ -95,7 +95,7 @@ def final_solution_one_el() -> float:
     МАРТА
     >>> final_solution_one_el()
     '''
-    equation = analytic_solution()
+    equation = general_solution()
     Rs = find_roots()
     As = get_coefs()
     #r = [829482394823,2,9839283,4]
