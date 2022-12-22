@@ -40,7 +40,11 @@ def final_solution_plural_el(nums: list) -> list[float]:
     з переліка, який отримує функція.
     ВІКА
     '''
-    pass
+    solutions_lst = []
+    for element in nums:
+        solution = final_solution_one_el(element)
+        solutions_lst.append(solution)
+    return solutions_lst
 
 def exact_element() -> float:
     '''
