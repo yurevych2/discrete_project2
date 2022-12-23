@@ -44,7 +44,7 @@ def final_solution_plural_el(nums: list) -> list[float]:
     for element in range(len(basa), num+1):
         solution = final_solution_one_el(element)
         solutions_lst.append(solution)
-    return solutions_lst
+    return basa + solutions_lst
 
 def exact_element() -> float:
     '''
