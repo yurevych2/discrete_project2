@@ -11,8 +11,7 @@ def transform_equation(coefs):
     result = []
     for i in coefs:
         result.append(str(i) + '*r**' + str(power - coefs.index(i)))
-
-    return coefs, ' + '.join(result)
+    return [coefs, ' + '.join(result)]
 
 def derivative_func(coefs):
     '''
@@ -141,7 +140,7 @@ def make_equation(coefs):
     return ''.join(result)
 
 
-def get_root(equation, coefs, epsilon):
+def get_root(coefs, epsilon):
     '''
     (str, list, float) -> list
     Finds all roots of the polynomial.
@@ -154,17 +153,19 @@ def get_root(equation, coefs, epsilon):
     >>> get_root('r**3 - 4*r**2 + 5*r - 2', [1, -4, 5, -2], 0.1)
     [1, 1, 2]
     '''
+    equation = transform_equation[1]
+    coefs1 = transform_equation[0]
     power = len(coefs) - 1
     result = []
     #Finding interval, where function has different signs:
-    interval = find_interval(equation, coefs)
+    interval = find_interval(equation, coefs1)
     root = one_root(equation, interval, epsilon)
     result.append(root)
     while len(result) < power:
         coefs2 = [1, -root]
-        coefs = division(coefs, coefs2)
-        equation = make_equation(coefs)
-        root = one_root(equation, find_interval(equation, coefs), epsilon)
+        coefs1 = division(coefs1, coefs2)
+        equation = make_equation(coefs1)
+        root = one_root(equation, find_interval(equation, coefs1), epsilon)
         result.append(root)
     return result
 
