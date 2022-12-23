@@ -1,6 +1,14 @@
 '''
 Modul that solve reccurent equations in two ways: slow and speed.
 Also you can get analysis of work of functions.
+
+Requirements: equation is a string that looks like this '3*a(n-1) + 10*a(n-2)'.
+So index of 'a' saved in () and there is always a coefficient before 'a'.
+Coefficient before a(n) is alweys 1, but you can handly devide coefficients so those are floats.
+
+Usage: python recurrent_equations.py <equation> <number> <base>
+
+E. G. python recurrent_equations.py '3*a(n-1) + 10*a(n-2)' 8 1 1
 '''
 
 import argparse
@@ -145,7 +153,7 @@ def final_solution_one_el(equation_: str, As: list) -> float:
     Substitutes r, A and returns the final solution of the nth term.
 
     >>> final_solution_one_el('A1*1^(n-1) + A2*2^(n-2) + A3*3^(n-3)', [1,2,3])
-    '1*1^n + 2*2^n + 3*3^n'
+    '1*(1)**n + 2*(2)**n + 3*(3)**n'
     '''
     equation = deepcopy(equation_)
 
@@ -216,33 +224,37 @@ def get_nth_el(equation_: str, first_els: list, n: int):
         return n_th
 
 
+parser = argparse.ArgumentParser(
+    description='Return N elements of the secuaence slowly or N-th fast.')
+
+parser.add_argument('equation', type=str, help='Equation to solve.')
+parser.add_argument('number', type=int, help='Number of the first elements to find.')
+parser.add_argument('base', type=int, nargs='+', help='First elements we know.')
+
+
 if __name__ == '__main__':
-    # import doctest
-    # doctest.testmod()
+    import doctest
+    doctest.testmod()
+
+    args = parser.parse_args()
 
     # slow
     start = timeit()
-
-    equation = '3*a(n-1) + 10*a(n-2)'
-    num = 100
-    base = [4, 1]
-    mod = modify_equation(equation)
+    mod = modify_equation(args.equation)
     gen0 = general_solution(mod)[0]
     gen1 = general_solution(mod)[1]
     roots = get_root(gen1, 0.1)
     rep = replace_r(gen0, roots)
-    system = get_system(rep, base)
+    system = get_system(rep, args.base)
     coefs = get_coefs(system)
     fin = final_solution_one_el(rep, coefs)
 
-    print(f'100-th (slow) = {final_solution_plural_el(fin, num, base)[-1]}')
+    print(f'{args.number}-th (slow) = {final_solution_plural_el(fin, args.number, args.base)[-1]}')
     end = timeit()
-    
-    print(f'Time to find 100 elements (slow) if a_n = 3*a(n-1) + 10*a(n-2):\n{end - start}')
+    print(f'Time to find {args.number}-th elements (slow) if a_n = {args.equation}:\n{end - start}')
 
-    # analysis and speed
+    # speed
     start2 = timeit()
-    print(f'\n\n100-th (speed) = {get_nth_el(equation, base, 100)}')
+    print(f'\n\n{args.number}-th (speed) = {get_nth_el(args.equation, args.base, args.number)}')
     end2 = timeit()
-
-    print(f'Time to find 100-th element (speed) if a_n = 3*a(n-1) + 10*a(n-2):\n{end2 - start2}')
+    print(f'Time to find {args.number}-th element (speed) if a_n = {args.equation}:\n{end2 - start2}')
