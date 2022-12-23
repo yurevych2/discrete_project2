@@ -1,4 +1,4 @@
-from numpy import array, polydiv
+import numpy as np
 
 def transform_equation(coefs):
     '''
@@ -12,6 +12,7 @@ def transform_equation(coefs):
     for i in coefs:
         result.append(str(i) + '*r**' + str(power - coefs.index(i)))
     return [coefs, ' + '.join(result)]
+
 
 def derivative_func(coefs):
     '''
@@ -117,9 +118,9 @@ def division(coefs1, coefs2):
     [1.0, 1.0]
     '''
     lst = []
-    x = array(coefs1)
-    y = array(coefs2)
-    result = polydiv(x, y)[0]
+    x = np.array(coefs1)
+    y = np.array(coefs2)
+    result = np.polydiv(x, y)[0]
     for i in result:
         if isinstance(i, float):
             lst.append(i)
@@ -153,19 +154,19 @@ def get_root(coefs, epsilon):
     >>> get_root('r**3 - 4*r**2 + 5*r - 2', [1, -4, 5, -2], 0.1)
     [1, 1, 2]
     '''
-    equation = transform_equation[1]
-    coefs1 = transform_equation[0]
+    equation = transform_equation(coefs)[1]
+    coefs = [-1] + coefs
     power = len(coefs) - 1
     result = []
     #Finding interval, where function has different signs:
-    interval = find_interval(equation, coefs1)
+    interval = find_interval(equation, coefs)
     root = one_root(equation, interval, epsilon)
     result.append(root)
     while len(result) < power:
         coefs2 = [1, -root]
-        coefs1 = division(coefs1, coefs2)
-        equation = make_equation(coefs1)
-        root = one_root(equation, find_interval(equation, coefs1), epsilon)
+        coefs = division(coefs, coefs2)
+        equation = make_equation(coefs)
+        root = one_root(equation, find_interval(equation, coefs), epsilon)
         result.append(root)
     return result
 
@@ -184,3 +185,12 @@ def coincidence_of_roots(roots):
         else:
             counts[item] = 1
     return counts
+
+def general(coefs, epsilon):
+    '''
+    Returns general solution of polinomial equation.
+    '''
+    coefs1 = transform_equation(coefs)[0]
+    equation = transform_equation(coefs)[1]
+    roots = get_root(equation, coefs1, epsilon)
+    return roots
