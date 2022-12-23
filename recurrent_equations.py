@@ -1,11 +1,17 @@
 '''
 Modul that solve reccurent equations in two ways: slow and speed.
 Also you can get analysis of work of functions.
+
+EXAMPLE OF USAGE
+python recurrent_equations.py '3*a(n-1) + 10*a(n-2)' 1, 43 --speed_search 2
 '''
 
+import argparse
 from copy import deepcopy
 from numpy import array, matmul
 from numpy.linalg import matrix_power, det
+
+from find_roots import get_root, coincidence_of_roots
 
 def modify_equation(equation_: str) -> str:
     '''
@@ -48,12 +54,7 @@ def general_solution(equation_: str) -> tuple:
 
     return equation, coeff
 
-def find_roots() -> list[float]:
-    '''
-    Documentation and docstring.
-    Шукає r.
-    ТАРАС
-    '''
+# def find_roots() -> list[float]: FUNCTION get_root and coincidence_of_roots
 
 def replace_r(equation_: str, roots: list):
     '''
@@ -155,13 +156,14 @@ def final_solution_one_el(equation_, As) -> float:
 
 def final_solution_plural_el(nums: list) -> list[float]:
     '''
-    arg nums: номера елементів для обрахунку (ті, які треба знайти)
-    Documentation and docstring.
-    Викликає Н разів final_solution_one_el(), щоб обрахувати елементи з номером
-    з переліка, який отримує функція.
-    ВІКА
+    :param nums list: numbers of elements to calculate.
     '''
-    pass
+    solutions_lst = []
+    for element in nums:
+        solution = final_solution_one_el(element)
+        solutions_lst.append(solution)
+
+    return solutions_lst
 
 def get_transitive_matrix(equation_: str):
     '''
@@ -210,6 +212,23 @@ def speed_analisys():
     '''
     pass
 
+parser = argparse.ArgumentParser(description='Solve reccurent equations in \
+    two ways: slow and speed. Compare those ways.')
+
+parser.add_argument('equation', type=str, help='The right part of equation you want to solv. \
+    E.g. "4*a(n-1) + 2*a(n-2) + -6*a(n-3)"')
+parser.add_argument('base_elements', type=float, nargs='+', help='The elements the a_n depends on. \
+    E.g. list with length of 3 first values for "4*a(n-1) + 2*a(n-2) + -6*a(n-3)"')
+
+parser.add_argument('--speed_search', type=int, \
+    help='Find N-th (start from 0) element of the equation in O(logN)')
+
+# choices=[0, 1, 2]
+
 if __name__ == '__main__':
     import doctest
-    print(doctest.testmod())
+    doctest.testmod()
+
+    args = parser.parse_args()
+    if args.speed_search:
+        print(get_nth_el(args.equation, args.base_elements, args.speed_search))
